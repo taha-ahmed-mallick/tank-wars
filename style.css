@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&family=Roboto:wght@300;400&display=swap');
+
+* {
+      margin: 0px;
+      padding: 0px;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      transition: 0.35s linear;
+      user-select: none;
+}
+
+*::selection {
+      background: transparent;
+}
+
+html {
+      width: 100vw;
+      height: 100vh;
+}
+
+body {
+      height: 100%;
+      width: 100%;
+      background-image: url(./resources/wall.jpg);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      cursor: none;
+}
+
+img.cursor {
+      position: absolute;
+      height: 50px;
+      width: 50px;
+      pointer-events: none;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      top: 0;
+      left: 0%;
+      transition: none;
+}
+
+div.container {
+      position: relative;
+      top: 0%;
+      left: 0%;
+      height: 100%;
+      width: 100%;
+}
+
+div.container div {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+}
+
+div.strt {
+      display: block;
+      z-index: 1;
+}
+
+div.strt span.strt-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      color: #fff;
+      border: 3px solid;
+      padding: 7px;
+      transform: translate(-50%, -50%);
+}
+
+span.strt-btn::before {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      background: #ffffff00;
+      top: 0%;
+      left: 0%;
+      transition: 0.25s ease-in;
+}
+
+
+span.strt-btn:hover::before {
+      background: #ffffff57;
+}
+
+div.end {
+      display: none;
+}
