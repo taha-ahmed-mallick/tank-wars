@@ -48,7 +48,7 @@ div.container {
       width: 100%;
 }
 
-div.container div {
+div.container>div {
       height: 100%;
       width: 100%;
       position: absolute;
@@ -83,6 +83,39 @@ span.strt-btn::before {
 
 span.strt-btn:hover::before {
       background: #ffffff57;
+}
+
+div.game {
+      display: none;
+}
+
+div.barier {
+      position: absolute;
+      height: 250px;
+      width: 250px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid #03A9F4;
+}
+
+div.barier div {
+      height: 100%;
+      width: 50px;
+      position: relative;
+      transform: rotate(360deg);
+      transition: none;
+}
+
+div.barier div img.cursor {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
 }
 
 div.end {
