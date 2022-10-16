@@ -66,74 +66,102 @@ strtBtn.addEventListener('click', () => {
       // document.documentElement.requestFullscreen();
 });
 
-let fireSpeed = [2, 5, 6, 3, 7];
+let fireSpeed = [5, 6, 3, 7];
 let fire = [];
 
 document.getElementsByClassName("game")[0].addEventListener('click', () => {
       if (playing) {
             line.classList.add('fire-anime');
             setTimeout(() => line.classList.remove('fire-anime'), 200);
-            fire.push(new Fire(angleDeg, angleRad, window.innerWidth / 2, window.innerHeight / 2));
+            fire.push(new Fire(angleDeg, angleRad, widthW / 2, heightW / 2));
       }
 });
 
 class Fire {
       constructor(angleDeg, angleRad, x, y) {
-            this.angleDeg = 90 - angleDeg;
+            this.angleDeg = angleDeg;
+            this.angleDegM = 90 - angleDeg
             this.angleRad = angleRad;
             this.cosθ = Math.cos(angleRad);
             this.sinθ = Math.sin(angleRad);
             this.speed = fireSpeed[Math.floor(Math.random() * fireSpeed.length)];
-            this.y = y;
-            this.x = x;
+            this.y = 0;
+            this.x = 0;
+            this.sx = x;
+            this.sy = y;
+            this.k = this.cosθ / this.sinθ;
+            this.left = window.innerWidth + this.x;
+            this.top = window.innerHeight + this.y;
             this.create();
       }
 
       create() {
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.angleDeg * Math.PI / 180);
-            ctx.arc(0, 0, 5, 0, Math.PI * 2, true);
+            ctx.translate(this.sx, this.sy);
+            ctx.rotate(this.angleDegM * Math.PI / 180);
+            // ctx.arc(this.x, this.y, 5, 0, Math.PI * 2, true);
+            // ctx.fillStyle = '#f44336';
+            // ctx.fill();
             ctx.fillStyle = '#f44336';
-            ctx.fill();
+            ctx.fillRect(this.x - 5, this.y - 4, 10, 7);
             ctx.fillStyle = '#ffc107';
-            ctx.fillRect(-5, 2, 10, 15);
+            ctx.fillRect(this.x - 5, this.y + 2, 10, 15);
             ctx.fillStyle = '#ffeb3b';
-            ctx.fillRect(-5, 16, 10, 7);
+            ctx.fillRect(this.x - 5, this.y + 16, 10, 7);
             ctx.closePath();
-            console.log(this.angleDeg, this.sinθ, this.cosθ);
-            ctx.rotate(Math.PI * 2 - this.angleDeg * Math.PI / 180);
-            ctx.translate(-this.x, -this.y);
-            // this.bullet.style.top = this.top + "px";
-            // this.bullet.style.left = this.left + "px";
-            // this.bullet.style.transform = `translate(50%, 50%) rotate(${180 - this.angle}deg)`;
+            console.log(this.angleDegM, this.sinθ, this.cosθ);
+            ctx.rotate(Math.PI * 2 - this.angleDegM * Math.PI / 180);
+            ctx.translate(-this.sx, -this.sy);
+            this.left = widthW / 2 + this.x;
+            this.top = heightW / 2 + this.y;
       }
 
       move() {
-            let y, x;
-            y = this.speed * this.sinθ;
-            x = this.speed * this.cosθ;
-            console.log(this.sinθ, this.cosθ, this.angle);
-            const k = x / y;
-            setInterval(() => {
-                  y += y;
-                  x = k * y;
-                  this.bullet.style.top = this.top + x + "px";
-                  this.bullet.style.left = this.left + y + "px";
-                  // console.log(x, y)
-            }, 100);
+
+            ctx.translate(this.sx, this.sy);
+            ctx.rotate(this.angleDegM * Math.PI / 180);
+
+            this.x -= this.speed;
+            this.y = this.x / this.k;
+
+            console.log("Working");
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(-5, this.x - 4, 10, 7);
+            ctx.fillStyle = '#ffc107';
+            ctx.fillRect(-5, this.x + 2, 10, 15);
+            ctx.fillStyle = '#ffeb3b';
+            ctx.fillRect(-5, this.x + 16, 10, 7);
+            ctx.closePath();
+
+            ctx.rotate(Math.PI * 2 - this.angleDegM * Math.PI / 180);
+            ctx.translate(-this.sx, -this.sy);
+            this.left = widthW / 2 - this.x;
+            this.top = heightW / 2 + this.y;
+            console.log(this.left, this.top);
+            console.log(this.x, this.y);
       }
 }
 
 function animation() {
       ctx.clearRect(0, 0, widthW, heightW);
+      for (let i = 0; i < fire.length; i++) {
+            if (fire[i].left <= widthW * 2) {
+                  fire[i].move();
+            } else {
+                  fire.splice(i, 1);
+            }
+      }
       requestAnimationFrame(animation);
 }
 
+animation();
+
 // bullet
-/*ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
-ctx.fillStyle = '#f44336';
-ctx.fill();
-ctx.fillStyle = '#ffc107';
-ctx.fillRect(295, 302, 10, 15);
-ctx.fillStyle = '#ffeb3b';
-ctx.fillRect(295, 315, 10, 7);*/
+// ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
+// ctx.fillStyle = '#f44336';
+// ctx.fill();
+// ctx.fillStyle = '#f44336';
+// ctx.fillRect(99, 300, 12, 7);
+// ctx.fillStyle = '#ffc107';
+// ctx.fillRect(100, 307, 10, 15);
+// ctx.fillStyle = '#ffeb3b';
+// ctx.fillRect(100, 322, 10, 7);
