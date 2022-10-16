@@ -1,9 +1,31 @@
 let playing = false;
 
 let cursor = document.getElementsByClassName('cursor');
+let strtBtn = document.getElementsByClassName('strt-btn')[0];
+let page = document.getElementsByClassName('page');
+let cvs = document.getElementsByTagName('canvas')[0];
 let barier = document.querySelector("div.barier");
 let barierθ = document.querySelector("div.barier>div.target");
-let angleMouse, sinθ, cosθ, index = 0;
+let line = document.getElementsByClassName('line')[0]
+let ctx = cvs.getContext('2d');
+let widthW = window.innerWidth;
+let heightW = window.innerHeight;
+let angleDeg, angleRad;
+
+let target = new Image();
+target.src = './resources/crosshair.png';
+let targetClick = new Image();
+targetClick.src = './resources/crosshair-click.png';
+
+cvs.height = heightW;
+cvs.width = widthW;
+
+window.addEventListener('resize', () => {
+      widthW = window.innerWidth;
+      heightW = window.innerHeight;
+      cvs.height = heightW;
+      cvs.width = widthW;
+})
 
 window.addEventListener('mousemove', eve => {
       let mouseX = eve.clientX;
@@ -23,25 +45,17 @@ window.addEventListener('mousemove', eve => {
 function angle(cx, cy, ex, ey) {
       let dx = ex - cx;
       let dy = ey - cy;
-      let angleθ = 360 - (Math.atan2(dy, dx) * 180 / Math.PI + 180);
-      sinθ = Math.sin(angleθ * Math.PI / 180);
-      cosθ = Math.cos(angleθ * Math.PI / 180);
-      angleMouse = angleθ;
-      // console.log(angleθ, sinθ, cosθ);
+      let angleθ = 180 - (Math.atan2(dy, dx) * 180 / Math.PI);
+      angleRad = angleθ * Math.PI / 180;
+      sinθ = Math.sin(angleRad);
+      cosθ = Math.cos(angleRad);
+      angleDeg = angleθ;
+      console.log(angleDeg, sinθ, cosθ);
       return angleθ;
 }
 
-window.addEventListener('mousedown', e => {
-      cursor[0].src = './resources/crosshair-click.png';
-      cursor[1].src = './resources/crosshair-click.png';
-});
-window.addEventListener('mouseup', e => {
-      cursor[0].src = './resources/crosshair.png';
-      cursor[1].src = './resources/crosshair.png';
-});
-
-let strtBtn = document.getElementsByClassName('strt-btn')[0];
-let page = document.getElementsByClassName('page');
+window.addEventListener('mousedown', e => { cursor[0].src = './resources/crosshair-click.png'; cursor[1].src = './resources/crosshair-click.png'; });
+window.addEventListener('mouseup', e => { cursor[0].src = './resources/crosshair.png'; cursor[1].src = './resources/crosshair.png'; });
 
 strtBtn.addEventListener('click', () => {
       page[0].style.display = "none";
@@ -49,52 +63,49 @@ strtBtn.addEventListener('click', () => {
       page[1].style.zIndex = "10";
       cursor[0].style.display = "none";
       playing = true;
-      document.documentElement.requestFullscreen();
+      // document.documentElement.requestFullscreen();
 });
 
-let fireAnime = [];
 let fireSpeed = [2, 5, 6, 3, 7];
 let fire = [];
 
 document.getElementsByClassName("game")[0].addEventListener('click', () => {
       if (playing) {
-            fireAnime.push('fire-anime');
-            for (let i = 0; i < fireAnime.length; i++) {
-                  setTimeout(() => {
-                        document.getElementsByClassName('line')[0].classList.add('fire-anime');
-                        setTimeout(() => {
-                              document.getElementsByClassName('line')[0].classList.remove('fire-anime')
-                              fireAnime.shift();
-                        }, 200);
-                  }, 200 * i);
-            }
-            fire.push(new Fire(angleMouse, window.innerWidth / 2, window.innerHeight / 2));
+            line.classList.add('fire-anime');
+            setTimeout(() => line.classList.remove('fire-anime'), 200);
+            fire.push(new Fire(angleDeg, angleRad, window.innerWidth / 2, window.innerHeight / 2));
       }
 });
 
-let game = document.getElementsByClassName("game-board")[0];
-
 class Fire {
-      constructor(angle, left, top) {
-            this.angle = angle + 90;
-            this.cosθ = Math.cos(this.angle * Math.PI / 180);
-            this.sinθ = Math.sin(this.angle * Math.PI / 180);
+      constructor(angleDeg, angleRad, x, y) {
+            this.angleDeg = 90 - angleDeg;
+            this.angleRad = angleRad;
+            this.cosθ = Math.cos(angleRad);
+            this.sinθ = Math.sin(angleRad);
             this.speed = fireSpeed[Math.floor(Math.random() * fireSpeed.length)];
-            this.top = top;
-            this.left = left;
-            this.index = index;
+            this.y = y;
+            this.x = x;
             this.create();
-            this.bullet;
-            this.move();
       }
 
       create() {
-            game.innerHTML += `<span class="bullet" id="${this.index}"></span>`;
-            this.bullet = document.getElementById(`${this.index}`);
-            this.bullet.style.top = this.top + "px";
-            this.bullet.style.left = this.left + "px";
-            this.bullet.style.transform = `translate(50%, 50%) rotate(${180 - this.angle}deg)`;
-            index++;
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angleDeg * Math.PI / 180);
+            ctx.arc(0, 0, 5, 0, Math.PI * 2, true);
+            ctx.fillStyle = '#f44336';
+            ctx.fill();
+            ctx.fillStyle = '#ffc107';
+            ctx.fillRect(-5, 2, 10, 15);
+            ctx.fillStyle = '#ffeb3b';
+            ctx.fillRect(-5, 16, 10, 7);
+            ctx.closePath();
+            console.log(this.angleDeg, this.sinθ, this.cosθ);
+            ctx.rotate(Math.PI * 2 - this.angleDeg * Math.PI / 180);
+            ctx.translate(-this.x, -this.y);
+            // this.bullet.style.top = this.top + "px";
+            // this.bullet.style.left = this.left + "px";
+            // this.bullet.style.transform = `translate(50%, 50%) rotate(${180 - this.angle}deg)`;
       }
 
       move() {
@@ -112,3 +123,17 @@ class Fire {
             }, 100);
       }
 }
+
+function animation() {
+      ctx.clearRect(0, 0, widthW, heightW);
+      requestAnimationFrame(animation);
+}
+
+// bullet
+/*ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
+ctx.fillStyle = '#f44336';
+ctx.fill();
+ctx.fillStyle = '#ffc107';
+ctx.fillRect(295, 302, 10, 15);
+ctx.fillStyle = '#ffeb3b';
+ctx.fillRect(295, 315, 10, 7);*/
