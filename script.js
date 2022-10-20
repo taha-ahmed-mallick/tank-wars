@@ -6,11 +6,12 @@ let page = document.getElementsByClassName('page');
 let cvs = document.getElementsByTagName('canvas')[0];
 let barier = document.querySelector("div.barier");
 let barierθ = document.querySelector("div.barier>div.target");
-let line = document.getElementsByClassName('line')[0]
+let line = document.getElementsByClassName('line')[0];
+let enemyGround = document.getElementsByClassName('enemies')[0];
 let ctx = cvs.getContext('2d');
 let widthW = window.innerWidth;
 let heightW = window.innerHeight;
-let angleDeg, angleRad;
+let angleDeg, angleRad, t = 5000, qty = 1, indexE = 0;
 
 let target = new Image();
 target.src = './resources/crosshair.png';
@@ -141,19 +142,70 @@ class Fire {
       }
 }
 
-function animation() {
-      ctx.clearRect(0, 0, widthW, heightW);
-      for (let i = 0; i < fire.length; i++) {
-            if (fire[i].left <= widthW * 2) {
-                  fire[i].move();
-            } else {
-                  fire.splice(i, 1);
-            }
+let enemies = [];
+
+class Enemy {
+      constructor(x, y, rSpeed, health) {
+            this.x = x;
+            this.y = y;
+            this.rSpeed = rSpeed;
+            this.health = health;
+            this.angle = 0;
+            this.enemy;
+            this.spawn()
       }
-      requestAnimationFrame(animation);
+
+      spawn() {
+            enemyGround.innerHTML += `
+            <div class="tank enemy" id="${indexE}">
+                  <div class="circle enemy">    
+                        <div class="line enemy"></div>
+                  </div>
+                  <div class="tank-body enemy"></div>
+            </div>`;
+            this.enemy = document.getElementById(`${indexE}`);
+            indexE++;
+            this.enemy.style.top = this.y + "px";
+            this.enemy.style.left = this.x + "px"
+      }
+
+      rotate() {
+            let r = this.enemy.childNodes[1];
+            console.log(r);
+            r.style.transform = `translate(-50%, -50%) scale(0.85) rotate(${++this.angle}deg)`;
+      }
 }
 
-animation();
+// function animation() {
+//       ctx.clearRect(0, 0, widthW, heightW);
+//       for (let i = 0; i < fire.length; i++) {
+//             if (fire[i].left <= widthW * 1.25) {
+//                   fire[i].move();
+//             } else {
+//                   fire.splice(i, 1);
+//             }
+//       }
+//       for (let i = 0; i < enemies.length; i++) {
+//             enemies[i].rotate();
+//       }
+//       requestAnimationFrame(animation);
+// }
+
+// animation();
+
+
+
+// setInterval(() => {
+//       if (playing) {
+//             for (let i = 0; i < qty; i++) {
+//                   let Ex = Math.random() * widthW;
+//                   let Ey = Math.random() * heightW;
+//                   Ex < widthW / 2 ? Ex + 50 : Ex - 50;
+//                   Ey < heightW / 2 ? Ey + 50 : Ey - 50;
+//                   enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)]));
+//             }
+//       }
+// }, t);
 
 // bullet
 // ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
@@ -165,3 +217,13 @@ animation();
 // ctx.fillRect(100, 307, 10, 15);
 // ctx.fillStyle = '#ffeb3b';
 // ctx.fillRect(100, 322, 10, 7);
+
+// grad = ctx.createRadialGradient(300, 300, 0, 300, 300, 21.25)
+// grad.addColorStop(0, "#ff3801")
+// grad.addColorStop(1, "#2d0702");
+// ctx.fillStyle = grad;
+// ctx.lineWidth = 2.5;
+// ctx.strokeStyle = "#303030";
+// ctx.arc(300, 300, 21.25, 0, Math.PI * 2);
+// ctx.stroke();
+// ctx.fill();
