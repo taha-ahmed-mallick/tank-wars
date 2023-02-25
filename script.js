@@ -83,6 +83,9 @@ strtBtn.addEventListener('click', () => {
       document.body.requestPointerLock();
 });
 
+document.addEventListener('mouseleave', () => !playing ? cursor[0].style.display = "none" : null);
+document.addEventListener('mouseenter', () => !playing ? cursor[0].style.display = "block" : null);
+
 let fireSpeed = [5, 6, 3, 7];
 let fire = [];
 
@@ -99,8 +102,8 @@ class Fire {
             this.sourceX = x;
             this.sourceY = y;
             this.k = this.cosθ / this.sinθ;
-            this.screenX = dimensions.width + this.x;
-            this.screenY = dimensions.height + this.y;
+            this.screenX = dimensions.width / 2 - this.x;
+            this.screenY = dimensions.height / 2 + this.y;
             this.create();
       }
 
@@ -117,7 +120,7 @@ class Fire {
             console.log(this.angleDegM, this.sinθ, this.cosθ);
             ctx.rotate(Math.PI * 2 - this.angleDegM * Math.PI / 180);
             ctx.translate(-this.sourceX, -this.sourceY);
-            this.screenX = dimensions.width / 2 + this.x;
+            this.screenX = dimensions.width / 2 - this.x;
             this.screenY = dimensions.height / 2 + this.y;
       }
 
@@ -152,12 +155,14 @@ class Enemy {
             this.y = y;
             this.rSpeed = rSpeed;
             this.health = health;
-            this.angle = 0;
+            this.healthLeft = health;
+            this.angle = Math.random() * 2 * Math.PI;
             this.enemy;
-            this.spawn()
+            this.spawn();
       }
 
       spawn() {
+            // box
             ctx.beginPath();
             ctx.fillStyle = "#800d00";
             ctx.fillRect(this.x - 70 / 2, this.y - 56 / 2, 70, 56);
@@ -172,6 +177,8 @@ class Enemy {
             linearGrad.addColorStop(0, "#920101");
             linearGrad.addColorStop(0.85, "#ff3801");
             ctx.fillStyle = linearGrad;
+
+            // line
             ctx.fillRect(this.x + 16, this.y - 6, 40, 12);
             ctx.strokeRect(this.x + 16, this.y - 6, 40, 12);
             ctx.closePath();
@@ -194,9 +201,17 @@ class Enemy {
 function animation() {
       ctx.clearRect(0, 0, dimensions.width, dimensions.height);
       for (let i = 0; i < fire.length; i++) {
-            console.table(fire);
             if (fire[i].screenX <= dimensions.diagonal) {
                   fire[i].move();
+                  for (let j = 0; j < enemies.length; j++) {
+                        console.log('x: ' + fire[i].sourceX);
+                        console.log('y: ' + fire[i].sourceY);
+                        if (fire[i].screenX > enemies[j].x - 35 && fire[i].screenX < enemies[j].x + 35) {
+                              if (fire[i].screenY > enemies[j].y - 28 && fire[i].screenY < enemies[j].y + 28) {
+                                    console.log("colliding");
+                              }
+                        }
+                  }
             } else {
                   fire.splice(i, 1);
             }
@@ -217,7 +232,8 @@ setInterval(() => {
                   let Ey = Math.random() * dimensions.height;
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)]));
+                  enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)], 100));
+                  console.log(enemies);
             }
       }
 }, time);
