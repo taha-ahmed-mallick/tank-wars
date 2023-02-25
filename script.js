@@ -11,13 +11,11 @@ class Dimensions {
       constructor() {
             this.height = window.innerHeight;
             this.width = window.innerWidth;
-            this.diagonal = Math.sqrt(this.height ** 2 + this.width ** 2);
             this.function();
       }
       function() {
             this.height = window.innerHeight;
             this.width = window.innerWidth;
-            this.diagonal = Math.sqrt(this.height ** 2 + this.width ** 2);
             cvs.height = this.height;
             cvs.width = this.width;
       }
@@ -97,53 +95,30 @@ class Fire {
             this.cosθ = Math.cos(angleRad);
             this.sinθ = Math.sin(angleRad);
             this.speed = fireSpeed[Math.floor(Math.random() * fireSpeed.length)];
-            this.y = 0;
-            this.x = 0;
-            this.sourceX = x;
-            this.sourceY = y;
+            this.x = x;
+            this.y = y;
             this.k = this.cosθ / this.sinθ;
-            this.screenX = dimensions.width / 2 - this.x;
-            this.screenY = dimensions.height / 2 + this.y;
             this.create();
       }
 
       create() {
-            ctx.translate(this.sourceX, this.sourceY);
+            ctx.translate(this.x, this.y);
             ctx.rotate(this.angleDegM * Math.PI / 180);
             ctx.fillStyle = '#f44336';
-            ctx.fillRect(this.x - 5, this.y - 4, 10, 7);
+            ctx.fillRect(- 5, - 4, 10, 7);
             ctx.fillStyle = '#ffc107';
-            ctx.fillRect(this.x - 5, this.y + 2, 10, 15);
+            ctx.fillRect(- 5, + 2, 10, 15);
             ctx.fillStyle = '#ffeb3b';
-            ctx.fillRect(this.x - 5, this.y + 16, 10, 7);
+            ctx.fillRect(- 5, + 16, 10, 7);
             ctx.closePath();
-            console.log(this.angleDegM, this.sinθ, this.cosθ);
             ctx.rotate(Math.PI * 2 - this.angleDegM * Math.PI / 180);
-            ctx.translate(-this.sourceX, -this.sourceY);
-            this.screenX = dimensions.width / 2 - this.x;
-            this.screenY = dimensions.height / 2 + this.y;
+            ctx.translate(-this.x, -this.y);
       }
 
       move() {
-
-            ctx.translate(this.sourceX, this.sourceY);
-            ctx.rotate(this.angleDegM * Math.PI / 180);
-
-            this.x -= this.speed;
-            this.y = this.x / this.k;
-
-            ctx.fillStyle = '#f44336';
-            ctx.fillRect(-5, this.x - 4, 10, 7);
-            ctx.fillStyle = '#ffc107';
-            ctx.fillRect(-5, this.x + 2, 10, 15);
-            ctx.fillStyle = '#ffeb3b';
-            ctx.fillRect(-5, this.x + 16, 10, 7);
-            ctx.closePath();
-
-            ctx.rotate(Math.PI * 2 - this.angleDegM * Math.PI / 180);
-            ctx.translate(-this.sourceX, -this.sourceY);
-            this.screenX = dimensions.width / 2 - this.x;
-            this.screenY = dimensions.height / 2 + this.y;
+            this.x += this.speed * this.cosθ;
+            this.y -= this.speed * this.sinθ;
+            this.create();
       }
 }
 
@@ -201,13 +176,11 @@ class Enemy {
 function animation() {
       ctx.clearRect(0, 0, dimensions.width, dimensions.height);
       for (let i = 0; i < fire.length; i++) {
-            if (fire[i].screenX <= dimensions.diagonal) {
+            if (fire[i].x > 0 && fire[i].x < dimensions.width && fire[i].y > 0 && fire[i].y < dimensions.height) {
                   fire[i].move();
                   for (let j = 0; j < enemies.length; j++) {
-                        console.log('x: ' + fire[i].sourceX);
-                        console.log('y: ' + fire[i].sourceY);
-                        if (fire[i].screenX > enemies[j].x - 35 && fire[i].screenX < enemies[j].x + 35) {
-                              if (fire[i].screenY > enemies[j].y - 28 && fire[i].screenY < enemies[j].y + 28) {
+                        if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
+                              if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
                                     console.log("colliding");
                               }
                         }
@@ -233,7 +206,6 @@ setInterval(() => {
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
                   enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)], 100));
-                  console.log(enemies);
             }
       }
 }, time);
