@@ -24,6 +24,7 @@ let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
 let angleDeg, angleRad, time = 5000, qty = 1, playing = false;
+let enemyHealth = [5, 6, 7, 8, 9, 10];
 
 let mousePos = {
       x: 0,
@@ -64,7 +65,7 @@ window.addEventListener('mousedown', () => {
       if (playing) {
             line.classList.add('fire-anime');
             setTimeout(() => line.classList.remove('fire-anime'), 200);
-            fire.push(new Fire(angleDeg, angleRad, dimensions.width / 2, dimensions.height / 2));
+            fire.push(new Fire(angleDeg, angleRad, dimensions.width / 2, dimensions.height / 2), "player");
       }
 });
 window.addEventListener('mouseup', () => {
@@ -88,7 +89,7 @@ let fireSpeed = [5, 6, 3, 7];
 let fire = [];
 
 class Fire {
-      constructor(angleDeg, angleRad, x, y) {
+      constructor(angleDeg, angleRad, x, y, source) {
             this.angleDeg = angleDeg;
             this.angleDegM = 90 - angleDeg;
             this.angleRad = angleRad;
@@ -97,7 +98,7 @@ class Fire {
             this.speed = fireSpeed[Math.floor(Math.random() * fireSpeed.length)];
             this.x = x;
             this.y = y;
-            this.k = this.cosθ / this.sinθ;
+            this.source = source;
             this.create();
       }
 
@@ -130,7 +131,7 @@ class Enemy {
             this.y = y;
             this.rSpeed = rSpeed;
             this.health = health;
-            this.healthLeft = health;
+            this.healthRemaning = health;
             this.angle = Math.random() * 2 * Math.PI;
             this.enemy;
             this.spawn();
@@ -181,6 +182,7 @@ function animation() {
                   for (let j = 0; j < enemies.length; j++) {
                         if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
                               if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
+                                    fire.splice(i, 1);
                                     console.log("colliding");
                               }
                         }
@@ -205,7 +207,7 @@ setInterval(() => {
                   let Ey = Math.random() * dimensions.height;
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)], 100));
+                  enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)], enemyHealth[Math.floor(Math.random() * enemyHealth.length)]));
             }
       }
 }, time);
