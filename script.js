@@ -65,7 +65,7 @@ window.addEventListener('mousedown', () => {
       if (playing) {
             line.classList.add('fire-anime');
             setTimeout(() => line.classList.remove('fire-anime'), 200);
-            fire.push(new Fire(angleDeg, angleRad, dimensions.width / 2, dimensions.height / 2), "player");
+            fire.push(new Fire(angleDeg, angleRad, dimensions.width / 2, dimensions.height / 2, "player"));
       }
 });
 window.addEventListener('mouseup', () => {
@@ -179,11 +179,13 @@ function animation() {
       for (let i = 0; i < fire.length; i++) {
             if (fire[i].x > 0 && fire[i].x < dimensions.width && fire[i].y > 0 && fire[i].y < dimensions.height) {
                   fire[i].move();
-                  for (let j = 0; j < enemies.length; j++) {
-                        if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
-                              if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
-                                    fire.splice(i, 1);
-                                    console.log("colliding");
+                  if (fire[i].source == 'player') {
+                        for (let j = 0; j < enemies.length; j++) {
+                              if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
+                                    if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
+                                          fire.splice(i, 1);
+                                          console.log("colliding");
+                                    }
                               }
                         }
                   }
