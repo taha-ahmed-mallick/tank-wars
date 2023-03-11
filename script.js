@@ -23,7 +23,7 @@ class Dimensions {
 let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
-let angleDeg, angleRad, time = 5000, qty = 1, playing = false;
+let angleDeg, angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime;
 let enemyHealth = [5, 6, 7, 8, 9, 10];
 
 let mousePos = {
@@ -139,42 +139,50 @@ class Enemy {
 
       spawn() {
             // box
+            ctx.translate(this.x, this.y);
             ctx.beginPath();
             ctx.fillStyle = "#800d00";
-            ctx.fillRect(this.x - 70 / 2, this.y - 56 / 2, 70, 56);
+            ctx.fillRect(-35, -28, 70, 56);
             ctx.lineWidth = 2.5;
             ctx.strokeStyle = "#303030";
-            ctx.strokeRect(this.x - 70 / 2, this.y - 56 / 2, 70, 56);
+            ctx.strokeRect(-35, -28, 70, 56);
             ctx.closePath();
 
             // linear gradient
+            ctx.rotate(this.angle);
             ctx.beginPath();
-            let linearGrad = ctx.createLinearGradient(this.x, this.y - 6, 0, this.y + 40);
+            let linearGrad = ctx.createLinearGradient(0, -6, 0, 40);
             linearGrad.addColorStop(0, "#920101");
             linearGrad.addColorStop(0.85, "#ff3801");
             ctx.fillStyle = linearGrad;
 
             // line
-            ctx.fillRect(this.x + 16, this.y - 6, 40, 12);
-            ctx.strokeRect(this.x + 16, this.y - 6, 40, 12);
+            ctx.fillRect(16, -6, 40, 12);
+            ctx.strokeRect(16, -6, 40, 12);
             ctx.closePath();
 
             // radial gradient
-            let radGrad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 21.25);
+            let radGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 21.25);
             radGrad.addColorStop(0, "#ff3801")
             radGrad.addColorStop(1, "#2d0702");
 
             // circle
             ctx.beginPath();
             ctx.fillStyle = radGrad;
-            ctx.arc(this.x, this.y, 21.25, 0, Math.PI * 2);
+            ctx.arc(0, 0, 21.25, 0, Math.PI * 2);
             ctx.stroke();
             ctx.fill();
             ctx.closePath();
+            ctx.rotate(-this.angle);
+            ctx.translate(-this.x, -this.y);
+      }
+
+      rotate() {
+            this.angle += this.rSpeed * Math.PI / 180;
       }
 }
 
-function animation() {
+function animation(animeTime) {
       ctx.clearRect(0, 0, dimensions.width, dimensions.height);
       for (let i = 0; i < fire.length; i++) {
             if (fire[i].x > 0 && fire[i].x < dimensions.width && fire[i].y > 0 && fire[i].y < dimensions.height) {
@@ -194,12 +202,14 @@ function animation() {
             }
       }
       for (let i = 0; i < enemies.length; i++) {
+            enemies[i].rotate();
             enemies[i].spawn();
       }
-      requestAnimationFrame(animation);
+      console.log(animeTime);
+      window.requestAnimationFrame(animation);
 }
 
-animation();
+window.requestAnimationFrame(animation);
 
 // Enemies spawner
 setInterval(() => {
@@ -209,10 +219,10 @@ setInterval(() => {
                   let Ey = Math.random() * dimensions.height;
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, fireSpeed[Math.floor(Math.random() * fireSpeed.length)], enemyHealth[Math.floor(Math.random() * enemyHealth.length)]));
+                  enemies.push(new Enemy(Ex, Ey, Math.random() * 5, enemyHealth[Math.floor(Math.random() * enemyHealth.length)]));
             }
       }
-}, time);
+}, spawnTimeΔ);
 
 // bullet
 // ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
