@@ -134,10 +134,10 @@ class Enemy {
             this.healthRemaning = health;
             this.angle = Math.random() * 2 * Math.PI;
             this.enemy;
-            this.spawn();
+            this.draw();
       }
 
-      spawn() {
+      draw() {
             // box
             ctx.translate(this.x, this.y);
             ctx.beginPath();
@@ -182,36 +182,22 @@ class Enemy {
       }
 }
 
-function animation(animeTime) {
-      ctx.clearRect(0, 0, dimensions.width, dimensions.height);
-      for (let i = 0; i < fire.length; i++) {
-            if (fire[i].x > 0 && fire[i].x < dimensions.width && fire[i].y > 0 && fire[i].y < dimensions.height) {
-                  fire[i].move();
-                  if (fire[i].source == 'player') {
-                        for (let j = 0; j < enemies.length; j++) {
-                              if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
-                                    if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
-                                          fire.splice(i, 1);
-                                          console.log("colliding");
-                                    }
-                              }
-                        }
-                  }
-            } else {
-                  fire.splice(i, 1);
+function animation() {
+      if (playing) {
+            ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+            console.log(fireCollision());
+            // enemies update
+            for (let i = 0; i < enemies.length; i++) {
+                  enemies[i].rotate();
+                  enemies[i].draw();
             }
       }
-      for (let i = 0; i < enemies.length; i++) {
-            enemies[i].rotate();
-            enemies[i].spawn();
-      }
-      console.log(animeTime);
       window.requestAnimationFrame(animation);
 }
 
 window.requestAnimationFrame(animation);
 
-// Enemies spawner
+// enemies spawner
 setInterval(() => {
       if (playing) {
             for (let i = 0; i < qty; i++) {
@@ -223,6 +209,29 @@ setInterval(() => {
             }
       }
 }, spawnTimeΔ);
+
+// fire movement and collision detection
+function fireCollision() {
+      for (let i = 0; i < fire.length; i++) {
+            if (fire[i].x > 0 && fire[i].x < dimensions.width && fire[i].y > 0 && fire[i].y < dimensions.height) {
+                  fire[i].move();
+                  if (fire[i].source == 'player') {
+                        for (let j = 0; j < enemies.length; j++) {
+                              if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
+                                    if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
+                                          fire.splice(i, 1);
+                                          return "collising";
+                                    }
+                              }
+                        }
+                  }
+            } else {
+                  fire.splice(i, 1);
+                  return "out of screen";
+            }
+      }
+      return "no change";
+}
 
 // bullet
 // ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
