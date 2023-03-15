@@ -25,7 +25,7 @@ body {
       background-size: cover;
       background-position: center;
       overflow: hidden;
-      /* cursor: none; */
+      cursor: none;
 }
 
 img.cursor {
@@ -151,61 +151,6 @@ div.tank div.tank-body {
       height: 70px;
       width: 56px;
       background: green;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 2px solid #303030;
-}
-
-div.enemies {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 100vw;
-}
-
-div.tank.enemy {
-      position: absolute;
-      top: 88px;
-      left: 50px;
-      background: blue;
-      height: 50px;
-      width: 56px;
-}
-
-div.tank.enemy div.circle.enemy {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.85) rotate(30deg);
-      height: 50px;
-      width: 50px;
-      border-radius: 100%;
-      background: radial-gradient(#ff3801, #2d0702);
-      border: 2.5px solid #303030;
-      z-index: 3;
-}
-
-div.tank.enemy div.line.enemy {
-      height: 40px;
-      width: 15px;
-      border: 2.5px solid #303030;
-      background: linear-gradient(0deg, #920101, #ff3801);
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 4;
-      border-bottom: none;
-}
-
-div.tank.enemy div.tank-body.enemy {
-      position: absolute;
-      z-index: 2;
-      height: 70px;
-      width: 56px;
-      background: #800d00;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
