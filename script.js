@@ -23,8 +23,8 @@ class Dimensions {
 let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
-let angleDeg, angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime;
-let enemyHealth = [5, 6, 7, 8, 9, 10];
+let angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime;
+let playerHealth = 100;
 
 let mousePos = {
       x: 0,
@@ -53,9 +53,6 @@ function angle(cx, cy, ex, ey) {
       let dy = ey - cy;
       let angleθ = 180 - (Math.atan2(dy, dx) * 180 / Math.PI);
       angleRad = angleθ * Math.PI / 180;
-      sinθ = Math.sin(angleRad);
-      cosθ = Math.cos(angleRad);
-      angleDeg = angleθ;
       return angleθ;
 }
 
@@ -65,7 +62,10 @@ window.addEventListener('mousedown', () => {
       if (playing) {
             line.classList.add('fire-anime');
             setTimeout(() => line.classList.remove('fire-anime'), 200);
-            fire.push(new Fire(angleDeg, angleRad, dimensions.width / 2, dimensions.height / 2, "player"));
+            fire.push(new Fire(angleRad, dimensions.width / 2, dimensions.height / 2, "player"));
+            for (let i = 0; i < enemies.length; i++) {
+                  fire.push(new Fire(enemies[i].angle, enemies[i].x, enemies[i].y, 'enemy'));
+            }
       }
 });
 window.addEventListener('mouseup', () => {
@@ -89,10 +89,9 @@ let fireSpeed = [5, 6, 3, 7];
 let fire = [];
 
 class Fire {
-      constructor(angleDeg, angleRad, x, y, source) {
-            this.angleDeg = angleDeg;
-            this.angleDegM = 90 - angleDeg;
+      constructor(angleRad, x, y, source) {
             this.angleRad = angleRad;
+            this.angleRadR = (Math.PI / 2) - angleRad;
             this.cosθ = Math.cos(angleRad);
             this.sinθ = Math.sin(angleRad);
             this.speed = fireSpeed[Math.floor(Math.random() * fireSpeed.length)];
@@ -104,7 +103,7 @@ class Fire {
 
       create() {
             ctx.translate(this.x, this.y);
-            ctx.rotate(this.angleDegM * Math.PI / 180);
+            ctx.rotate(this.angleRadR);
             ctx.fillStyle = '#f44336';
             ctx.fillRect(- 5, - 4, 10, 7);
             ctx.fillStyle = '#ffc107';
@@ -112,7 +111,7 @@ class Fire {
             ctx.fillStyle = '#ffeb3b';
             ctx.fillRect(- 5, + 16, 10, 7);
             ctx.closePath();
-            ctx.rotate(Math.PI * 2 - this.angleDegM * Math.PI / 180);
+            ctx.rotate(Math.PI * 2 - this.angleRadR);
             ctx.translate(-this.x, -this.y);
       }
 
@@ -210,7 +209,7 @@ setInterval(() => {
                   let Ey = Math.random() * dimensions.height;
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, Math.random() * 5, enemyHealth[Math.floor(Math.random() * enemyHealth.length)]));
+                  enemies.push(new Enemy(Ex, Ey, Math.random() * 5, Math.floor(Math.random() * 5) + 5));
             }
       }
 }, spawnTimeΔ);
@@ -230,6 +229,10 @@ function fireCollision() {
                                     }
                               }
                         }
+                  } else if (fire[i].source == 'enemy') {
+                        console.log("enemy fire");
+                        playerHealth--;
+                        document.documentElement.style.setProperty('--hue', playerHealth);
                   }
             } else {
                   fire.splice(i, 1);

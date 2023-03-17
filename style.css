@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&family=Roboto:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&display=swap');
 
 * {
       margin: 0px;
@@ -7,6 +8,10 @@
       font-family: 'Poppins', sans-serif;
       transition: 0.35s linear;
       user-select: none;
+}
+
+:root {
+      --hue: 100;
 }
 
 *::selection {
@@ -22,7 +27,7 @@ body {
       height: 100%;
       width: 100%;
       background-image: url(./resources/wall.jpg);
-      background-size: cover;
+      background-size: 100vw 100vh;
       background-position: center;
       overflow: hidden;
       /* cursor: none; */
@@ -163,6 +168,44 @@ div.stats {
       left: 0%;
       height: 7vh;
       width: 100vw;
+      display: flex;
+      justify-content: space-around;
+      padding: 5px;
+      line-height: 7vh;
+      background: url(./resources/wall.jpg);
+      z-index: 10;
+      background-size: 100vw 100vh;
+}
+
+div.stats * {
+      font-family: 'Orbitron', sans-serif !important;
+      color: #fff;
+      font-size: 20px;
+}
+
+div.stats>* {
+      width: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-transform: uppercase;
+      font-weight: 500;
+}
+
+div.health-bar {
+      margin: 0 0 0 10px;
+      width: 50%;
+      height: 10px;
+      background: #fff8;
+      border-radius: 3px;
+}
+
+div.health-left {
+      width: 100%;
+      height: 100%;
+      background: hsl(var(--hue) 80% 50%);
+      border-radius: 3px;
+      box-shadow: 0 0 12px 4px hsl(var(--hue) 80% 50%);
 }
 
 canvas {
