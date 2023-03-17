@@ -30,7 +30,7 @@ body {
       background-size: 100vw 100vh;
       background-position: center;
       overflow: hidden;
-      /* cursor: none; */
+      cursor: none;
 }
 
 img.cursor {
@@ -43,6 +43,7 @@ img.cursor {
       top: 0;
       left: 0%;
       transition: none;
+      display: none;
 }
 
 div.container {
@@ -118,6 +119,7 @@ div.barier div.target {
 }
 
 div.barier div.target img.cursor {
+      display: initial;
       position: absolute;
       top: 0%;
       left: 50%;
@@ -150,11 +152,10 @@ div.tank div.line {
       border-bottom: none;
 }
 
-div.tank div.tank-body {
+div.tank-body {
       position: absolute;
-      z-index: 2;
-      height: 70px;
-      width: 56px;
+      width: 70px;
+      height: 56px;
       background: green;
       top: 50%;
       left: 50%;

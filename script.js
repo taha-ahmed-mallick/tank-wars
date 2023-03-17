@@ -36,6 +36,7 @@ window.addEventListener('mousemove', eve => {
             mousePos.y = eve.clientY;
             cursor[0].style.top = mousePos.y + "px";
             cursor[0].style.left = mousePos.x + "px";
+            cursor[0].style.display != "block" ? cursor[0].style.display = "block" : null;
       } else if (playing) {
             mousePos.x += eve.movementX;
             mousePos.y += eve.movementY;
@@ -64,7 +65,7 @@ window.addEventListener('mousedown', () => {
             setTimeout(() => line.classList.remove('fire-anime'), 200);
             fire.push(new Fire(angleRad, dimensions.width / 2, dimensions.height / 2, "player"));
             for (let i = 0; i < enemies.length; i++) {
-                  fire.push(new Fire(enemies[i].angle, enemies[i].x, enemies[i].y, 'enemy'));
+                  fire.push(new Fire((Math.PI * 1.999) - enemies[i].angle, enemies[i].x, enemies[i].y, 'enemy'));
             }
       }
 });
@@ -209,7 +210,7 @@ setInterval(() => {
                   let Ey = Math.random() * dimensions.height;
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, Math.random() * 5, Math.floor(Math.random() * 5) + 5));
+                  enemies.push(new Enemy(Ex, Ey, Math.random(), Math.floor(Math.random() * 5) + 5));
             }
       }
 }, spawnTimeΔ);
@@ -241,34 +242,3 @@ function fireCollision() {
       }
       return "no change";
 }
-
-// bullet
-// ctx.arc(300, 300, 5, 0, Math.PI * 2, true);
-// ctx.fillStyle = '#f44336';
-// ctx.fill();
-// ctx.fillStyle = '#f44336';
-// ctx.fillRect(99, 300, 12, 7);
-// ctx.fillStyle = '#ffc107';
-// ctx.fillRect(100, 307, 10, 15);
-// ctx.fillStyle = '#ffeb3b';
-// ctx.fillRect(100, 322, 10, 7);
-
-// radial gradient
-// grad = ctx.createRadialGradient(300, 300, 0, 300, 300, 21.25)
-// grad.addColorStop(0, "#ff3801")
-// grad.addColorStop(1, "#2d0702");
-
-// circle
-// ctx.fillStyle = grad;
-// ctx.lineWidth = 2.5;
-// ctx.strokeStyle = "#303030";
-// ctx.arc(300, 300, 21.25, 0, Math.PI * 2);
-// ctx.stroke();
-// ctx.fill();
-
-// linear gradient
-// grad = ctx.createLinearGradient(0, 0, 40, 0)
-// grad.addColorStop(0, "#920101")
-// grad.addColorStop(1, "#ff3801")
-// ctx.fillStyle = grad
-// ctx.fillRect(0, 0, 40, 12)
