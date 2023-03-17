@@ -180,12 +180,17 @@ class Enemy {
       rotate() {
             this.angle += this.rSpeed * Math.PI / 180;
       }
+
+      updateHealth() {
+            this.healthRemaning--;
+            console.log(`total health: ${this.health}, remaining health: ${this.healthRemaning}`);
+      }
 }
 
 function animation() {
       if (playing) {
             ctx.clearRect(0, 0, dimensions.width, dimensions.height);
-            console.log(fireCollision());
+            fireCollision();
             // enemies update
             for (let i = 0; i < enemies.length; i++) {
                   enemies[i].rotate();
@@ -220,7 +225,8 @@ function fireCollision() {
                               if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
                                     if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
                                           fire.splice(i, 1);
-                                          return "collising";
+                                          enemies[j].updateHealth();
+                                          return "colliding";
                                     }
                               }
                         }
