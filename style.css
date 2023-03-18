@@ -161,6 +161,7 @@ div.tank-body {
       left: 50%;
       transform: translate(-50%, -50%);
       border: 2px solid #303030;
+      z-index: 1;
 }
 
 div.stats {
@@ -176,6 +177,7 @@ div.stats {
       background: url(./resources/wall.jpg);
       z-index: 10;
       background-size: 100vw 100vh;
+      box-shadow: 0px 3px 40px 9px black;
 }
 
 div.stats * {

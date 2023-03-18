@@ -65,7 +65,7 @@ window.addEventListener('mousedown', () => {
             setTimeout(() => line.classList.remove('fire-anime'), 200);
             fire.push(new Fire(angleRad, dimensions.width / 2, dimensions.height / 2, "player"));
             for (let i = 0; i < enemies.length; i++) {
-                  fire.push(new Fire((Math.PI * 1.999) - enemies[i].angle, enemies[i].x, enemies[i].y, 'enemy'));
+                  fire.push(new Fire((Math.PI * 1.99) - enemies[i].angle, enemies[i].x, enemies[i].y, 'enemy'));
             }
       }
 });
@@ -86,7 +86,6 @@ strtBtn.addEventListener('click', () => {
 document.addEventListener('mouseleave', () => !playing ? cursor[0].style.display = "none" : null);
 document.addEventListener('mouseenter', () => !playing ? cursor[0].style.display = "block" : null);
 
-let fireSpeed = [5, 6, 3, 7];
 let fire = [];
 
 class Fire {
@@ -95,10 +94,11 @@ class Fire {
             this.angleRadR = (Math.PI / 2) - angleRad;
             this.cosθ = Math.cos(angleRad);
             this.sinθ = Math.sin(angleRad);
-            this.speed = fireSpeed[Math.floor(Math.random() * fireSpeed.length)];
+            this.speed = Math.round(Math.random() * 4) + 3;
             this.x = x;
             this.y = y;
             this.source = source;
+            if (source == 'enemy') this.firePow = Math.round(Math.random() * 10) + 5;
             this.create();
       }
 
@@ -183,7 +183,7 @@ class Enemy {
 
       updateHealth() {
             this.healthRemaning--;
-            console.log(`total health: ${this.health}, remaining health: ${this.healthRemaning}`);
+            // console.log(`total health: ${this.health}, remaining health: ${this.healthRemaning}`);
       }
 }
 
@@ -210,10 +210,14 @@ setInterval(() => {
                   let Ey = Math.random() * dimensions.height;
                   Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
                   Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, Math.random(), Math.floor(Math.random() * 5) + 5));
+                  enemies.push(new Enemy(Ex, Ey, Math.random(), Math.round(Math.random() * 5) + 5));
             }
       }
 }, spawnTimeΔ);
+
+const playerTank = document.getElementsByClassName('tank-body')[0];
+const healthLeftEle = document.getElementsByClassName('health-left')[0];
+// console.log(playerTank);
 
 // fire movement and collision detection
 function fireCollision() {
@@ -224,16 +228,29 @@ function fireCollision() {
                         for (let j = 0; j < enemies.length; j++) {
                               if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
                                     if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
-                                          fire.splice(i, 1);
                                           enemies[j].updateHealth();
+                                          fire.splice(i, 1);
                                           return "colliding";
                                     }
                               }
                         }
                   } else if (fire[i].source == 'enemy') {
-                        console.log("enemy fire");
-                        playerHealth--;
-                        document.documentElement.style.setProperty('--hue', playerHealth);
+                        // console.log("enemy fire");
+                        let rect = playerTank.getBoundingClientRect();
+                        let rectDetail = {
+                              x: rect.left,
+                              y: rect.top,
+                              width: rect.width,
+                              height: rect.height
+                        };
+                        if (fire[i].x > rectDetail.x && fire[i].x < rectDetail.x + rectDetail.width) {
+                              if (fire[i].y > rectDetail.y && fire[i].y < rectDetail.y + rectDetail.height) {
+                                    playerHealth -= fire[i].firePow;
+                                    document.documentElement.style.setProperty('--hue', playerHealth);
+                                    healthLeftEle.style.width = playerHealth + "%";
+                                    fire.splice(i, 1);
+                              }
+                        }
                   }
             } else {
                   fire.splice(i, 1);
