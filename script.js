@@ -5,7 +5,18 @@ const cvs = document.getElementsByTagName('canvas')[0];
 const barier = document.querySelector("div.barier");
 const barierθ = document.querySelector("div.barier>div.target");
 const line = document.getElementsByClassName('line')[0];
+const scoreEle = document.querySelector('.score>span');
 const ctx = cvs.getContext('2d');
+
+// local storage
+const lastEle = document.querySelector('.last-score>span');
+const highEle = document.querySelector('.highest-score>span');
+
+if (window.localStorage.lastScore == null) window.localStorage.setItem('lastScore', 00);
+if (window.localStorage.highScore == null) window.localStorage.setItem('highScore', 00);
+
+lastEle.innerText = window.localStorage.lastScore;
+highEle.innerText = window.localStorage.highScore;
 
 class Dimensions {
       constructor() {
@@ -24,7 +35,7 @@ let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
 let angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime;
-let playerHealth = 100;
+let playerHealth = 100, score = 0;
 
 let mousePos = {
       x: 0,
@@ -133,7 +144,6 @@ class Enemy {
             this.health = health;
             this.healthRemaning = health;
             this.angle = Math.random() * 2 * Math.PI;
-            this.enemy;
             this.draw();
       }
 
@@ -147,6 +157,14 @@ class Enemy {
             ctx.strokeStyle = "#303030";
             ctx.strokeRect(-35, -28, 70, 56);
             ctx.closePath();
+
+            if (this.health != this.healthRemaning) {
+                  let percentage = this.healthRemaning / this.health * 60;
+                  ctx.fillStyle = '#607D8B';
+                  ctx.fillRect(-30, -37, 60, 5);
+                  ctx.fillStyle = `hsl(${percentage} 80% 50%)`;
+                  ctx.fillRect(-30, -37, percentage, 5);
+            }
 
             // linear gradient
             ctx.rotate(this.angle);
@@ -181,9 +199,13 @@ class Enemy {
             this.angle += this.rSpeed * Math.PI / 180;
       }
 
-      updateHealth() {
+      updateHealth(index) {
             this.healthRemaning--;
-            // console.log(`total health: ${this.health}, remaining health: ${this.healthRemaning}`);
+            if (this.healthRemaning <= 0) {
+                  enemies.splice(index, 1);
+                  score += 10;
+                  scoreEle.innerText = score;
+            }
       }
 }
 
@@ -228,7 +250,9 @@ function fireCollision() {
                         for (let j = 0; j < enemies.length; j++) {
                               if (fire[i].x > enemies[j].x - 35 && fire[i].x < enemies[j].x + 35) {
                                     if (fire[i].y > enemies[j].y - 28 && fire[i].y < enemies[j].y + 28) {
-                                          enemies[j].updateHealth();
+                                          enemies[j].updateHealth(j);
+                                          score += 5;
+                                          scoreEle.innerText = score;
                                           fire.splice(i, 1);
                                           return "colliding";
                                     }
@@ -246,6 +270,13 @@ function fireCollision() {
                         if (fire[i].x > rectDetail.x && fire[i].x < rectDetail.x + rectDetail.width) {
                               if (fire[i].y > rectDetail.y && fire[i].y < rectDetail.y + rectDetail.height) {
                                     playerHealth -= fire[i].firePow;
+                                    if (playerHealth <= 0) {
+                                          playerHealth = 0
+                                          playing = false;
+                                          window.localStorage.lastScore = score;
+                                          if (score > window.localStorage.highScore) window.localStorage.highScore = score;
+                                          document.body;
+                                    }
                                     document.documentElement.style.setProperty('--hue', playerHealth);
                                     healthLeftEle.style.width = playerHealth + "%";
                                     fire.splice(i, 1);
