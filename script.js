@@ -275,7 +275,7 @@ function fireCollision() {
                                           playing = false;
                                           window.localStorage.lastScore = score;
                                           if (score > window.localStorage.highScore) window.localStorage.highScore = score;
-                                          document.body;
+                                          document.exitPointerLock();
                                     }
                                     document.documentElement.style.setProperty('--hue', playerHealth);
                                     healthLeftEle.style.width = playerHealth + "%";
