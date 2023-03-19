@@ -18,6 +18,9 @@ if (window.localStorage.highScore == null) window.localStorage.setItem('highScor
 lastEle.innerText = window.localStorage.lastScore;
 highEle.innerText = window.localStorage.highScore;
 
+let gameOverAudio = new Audio();
+gameOverAudio.src = "./resources/game-over.mp3";
+
 class Dimensions {
       constructor() {
             this.height = window.innerHeight;
@@ -34,7 +37,7 @@ class Dimensions {
 let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
-let angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime, level = 0, lvlChangeΔ = 10000;
+let angleRad, spawnTimeΔ = 5000, playing = false, lastSpawnedTime, level = 0, lvlChangeΔ = 10000;
 let playerHealth = 100, score = 0, kills = 0, playingTime = 0, timeInterval, fireAllowed = true;
 
 let mousePos = {
@@ -146,7 +149,7 @@ class Enemy {
             this.x = x;
             this.y = y;
             this.rSpeed = Math.random() + 0.5;
-            this.health = Math.round(Math.random() * 5) + 5 + level;
+            this.health = Math.round(Math.random() * 3) + 2 + Math.floor(level * 1.5);
             this.healthRemaning = this.health;
             this.angle = Math.random() * 2 * Math.PI;
             this.fireTimeΔ = Math.round(Math.random() * 1500) + 1500 - level * 2;
@@ -236,34 +239,39 @@ function animation() {
 window.requestAnimationFrame(animation);
 
 // enemies spawner
+console.time();
 setInterval(() => {
-      if (playing) {
-            for (let i = 0; i < qty; i++) enemyGenerator();
-      }
-}, spawnTimeΔ - level * 10);
+      console.timeLog();
+      if (playing) enemyGenerator();
+}, spawnTimeΔ);
 
 function enemyGenerator() {
+      rect = playerTank.getBoundingClientRect();
+      rectDetail = {
+            x: rect.left,
+            y: rect.top,
+            width: rect.width,
+            height: rect.height
+      };
       let Ex = (Math.random() * dimensions.width * 0.8) + dimensions.width * 0.1;
       let Ey = (Math.random() * dimensions.height * 0.8) + dimensions.height * 0.13;
-      Ex > rectDetail.x - 25 && Ex < rectDetail.x + rectDetail.width + 25 ? enemyGenerator() : null;
-      Ey > rectDetail.y - 25 && Ey < rectDetail.y + rectDetail.height + 25 ? enemyGenerator() : null;
+      if (Ex > rectDetail.x - 25 && Ex < rectDetail.x + rectDetail.width + 25) {
+            enemyGenerator();
+            return 0;
+      }
+      if (Ey > rectDetail.y - 25 && Ey < rectDetail.y + rectDetail.height + 25) {
+            enemyGenerator();
+            return 0;
+      }
       enemies.push(new Enemy(Ex, Ey));
 }
 
-setInterval(() => {
-      level++;
-      qty += Math.floor(level * 0.5);
-}, lvlChangeΔ);
+setInterval(() => level++, lvlChangeΔ);
+
+document.addEventListener('pointerlockchange', () => console.log("dsfsdf"));
 
 const playerTank = document.getElementsByClassName('tank-body')[0];
-let rect = playerTank.getBoundingClientRect();
-let rectDetail = {
-      x: rect.left,
-      y: rect.top,
-      width: rect.width,
-      height: rect.height
-};
-
+let rect, rectDetail;
 const healthLeftEle = document.getElementsByClassName('health-left')[0];
 const endPage = document.querySelector('.end>div');
 const endDet = document.querySelectorAll('.det>.val>*');
@@ -286,10 +294,18 @@ function fireCollision() {
                               }
                         }
                   } else if (fire[i].source == 'enemy') {
+                        rect = playerTank.getBoundingClientRect()
+                        rectDetail = {
+                              x: rect.left,
+                              y: rect.top,
+                              width: rect.width,
+                              height: rect.height
+                        };
                         if (fire[i].x > rectDetail.x && fire[i].x < rectDetail.x + rectDetail.width) {
                               if (fire[i].y > rectDetail.y && fire[i].y < rectDetail.y + rectDetail.height) {
                                     playerHealth -= fire[i].firePow;
                                     if (playerHealth <= 0) {
+                                          gameOverAudio.play();
                                           playerHealth = 0
                                           playing = false;
                                           window.localStorage.lastScore = score;
