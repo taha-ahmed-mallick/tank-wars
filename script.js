@@ -34,8 +34,8 @@ class Dimensions {
 let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
-let angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime;
-let playerHealth = 100, score = 0;
+let angleRad, spawnTimeΔ = 5000, qty = 1, playing = false, lastSpawnedTime, level = 0, lvlChangeΔ = 10000;
+let playerHealth = 100, score = 0, kills = 0, playingTime = 0, timeInterval, fireAllowed = true;
 
 let mousePos = {
       x: 0,
@@ -71,13 +71,15 @@ function angle(cx, cy, ex, ey) {
 window.addEventListener('mousedown', () => {
       cursor[0].src = './resources/crosshair-click.png';
       cursor[1].src = './resources/crosshair-click.png';
-      if (playing) {
+      if (playing && fireAllowed) {
             line.classList.add('fire-anime');
             setTimeout(() => line.classList.remove('fire-anime'), 200);
             fire.push(new Fire(angleRad, dimensions.width / 2, dimensions.height / 2, "player"));
             for (let i = 0; i < enemies.length; i++) {
                   fire.push(new Fire((Math.PI * 1.99) - enemies[i].angle, enemies[i].x, enemies[i].y, 'enemy'));
             }
+            fireAllowed = false;
+            setTimeout(() => fireAllowed = true, 500);
       }
 });
 window.addEventListener('mouseup', () => {
@@ -92,6 +94,9 @@ strtBtn.addEventListener('click', () => {
       cursor[0].style.display = "none";
       playing = true;
       document.body.requestPointerLock();
+      timeInterval = setInterval(() => {
+            playingTime += 0.001;
+      }, 1);
 });
 
 document.addEventListener('mouseleave', () => !playing ? cursor[0].style.display = "none" : null);
@@ -109,7 +114,7 @@ class Fire {
             this.x = x;
             this.y = y;
             this.source = source;
-            if (source == 'enemy') this.firePow = Math.round(Math.random() * 10) + 5;
+            if (source == 'enemy') this.firePow = Math.round(Math.random() * 10) + 5 + level;
             this.create();
       }
 
@@ -137,13 +142,17 @@ class Fire {
 let enemies = [];
 
 class Enemy {
-      constructor(x, y, rSpeed, health) {
+      constructor(x, y) {
             this.x = x;
             this.y = y;
-            this.rSpeed = rSpeed;
-            this.health = health;
-            this.healthRemaning = health;
+            this.rSpeed = Math.random() + 0.5;
+            this.health = Math.round(Math.random() * 5) + 5 + level;
+            this.healthRemaning = this.health;
             this.angle = Math.random() * 2 * Math.PI;
+            this.fireTimeΔ = Math.round(Math.random() * 1500) + 1500 - level * 2;
+            this.fireInterval = setInterval(() => {
+                  if (playing) fire.push(new Fire((Math.PI * 1.99) - this.angle, this.x, this.y, 'enemy'));
+            }, this.fireTimeΔ);
             this.draw();
       }
 
@@ -202,9 +211,11 @@ class Enemy {
       updateHealth(index) {
             this.healthRemaning--;
             if (this.healthRemaning <= 0) {
+                  clearInterval(this.fireInterval);
                   enemies.splice(index, 1);
-                  score += 10;
+                  score += 5;
                   scoreEle.innerText = score;
+                  kills++;
             }
       }
 }
@@ -227,19 +238,35 @@ window.requestAnimationFrame(animation);
 // enemies spawner
 setInterval(() => {
       if (playing) {
-            for (let i = 0; i < qty; i++) {
-                  let Ex = Math.random() * dimensions.width;
-                  let Ey = Math.random() * dimensions.height;
-                  Ex < dimensions.width / 2 ? Ex + 50 : Ex - 50;
-                  Ey < dimensions.height / 2 ? Ey + 50 : Ey - 50;
-                  enemies.push(new Enemy(Ex, Ey, Math.random(), Math.round(Math.random() * 5) + 5));
-            }
+            for (let i = 0; i < qty; i++) enemyGenerator();
       }
-}, spawnTimeΔ);
+}, spawnTimeΔ - level * 10);
+
+function enemyGenerator() {
+      let Ex = (Math.random() * dimensions.width * 0.8) + dimensions.width * 0.1;
+      let Ey = (Math.random() * dimensions.height * 0.8) + dimensions.height * 0.13;
+      Ex > rectDetail.x - 25 && Ex < rectDetail.x + rectDetail.width + 25 ? enemyGenerator() : null;
+      Ey > rectDetail.y - 25 && Ey < rectDetail.y + rectDetail.height + 25 ? enemyGenerator() : null;
+      enemies.push(new Enemy(Ex, Ey));
+}
+
+setInterval(() => {
+      level++;
+      qty += Math.floor(level * 0.5);
+}, lvlChangeΔ);
 
 const playerTank = document.getElementsByClassName('tank-body')[0];
+let rect = playerTank.getBoundingClientRect();
+let rectDetail = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height
+};
+
 const healthLeftEle = document.getElementsByClassName('health-left')[0];
-// console.log(playerTank);
+const endPage = document.querySelector('.end>div');
+const endDet = document.querySelectorAll('.det>.val>*');
 
 // fire movement and collision detection
 function fireCollision() {
@@ -259,14 +286,6 @@ function fireCollision() {
                               }
                         }
                   } else if (fire[i].source == 'enemy') {
-                        // console.log("enemy fire");
-                        let rect = playerTank.getBoundingClientRect();
-                        let rectDetail = {
-                              x: rect.left,
-                              y: rect.top,
-                              width: rect.width,
-                              height: rect.height
-                        };
                         if (fire[i].x > rectDetail.x && fire[i].x < rectDetail.x + rectDetail.width) {
                               if (fire[i].y > rectDetail.y && fire[i].y < rectDetail.y + rectDetail.height) {
                                     playerHealth -= fire[i].firePow;
@@ -275,7 +294,19 @@ function fireCollision() {
                                           playing = false;
                                           window.localStorage.lastScore = score;
                                           if (score > window.localStorage.highScore) window.localStorage.highScore = score;
+                                          lastEle.innerText = window.localStorage.lastScore;
+                                          highEle.innerText = window.localStorage.highScore;
                                           document.exitPointerLock();
+                                          cvs.style.filter = 'grayscale(1)';
+                                          playerTank.style.filter = 'grayscale(1)';
+                                          barier.style.filter = 'grayscale(1)';
+                                          page[1].style.zIndex = 0;
+                                          page[2].style.display = "block";
+                                          page[2].style.zIndex = 10;
+                                          endPage.style.opacity = 1;
+                                          endDet[0].innerHTML = score;
+                                          setPlayTime();
+                                          endDet[2].innerHTML = kills;
                                     }
                                     document.documentElement.style.setProperty('--hue', playerHealth);
                                     healthLeftEle.style.width = playerHealth + "%";
@@ -290,3 +321,56 @@ function fireCollision() {
       }
       return "no change";
 }
+
+function setPlayTime() {
+      clearInterval(timeInterval);
+      let time = [];
+      time[0] = Math.floor(playingTime / 60);
+      time[1] = Math.floor(playingTime - time[0] * 60);
+      time[2] = Math.floor((playingTime - time[0] * 60 - time[1]) * 100);
+      for (let i = 0; i < time.length; i++) {
+            time[i] < 10 ? time[i] = '0' + time[i].toString() : null;
+      }
+      endDet[1].innerHTML = `${time[0]}: ${time[1]}.${time[2]}`;
+}
+
+function reset() {
+      fire = [];
+      for (let i = 0; i < enemies.length; i++) {
+            clearInterval(enemies[i].fireInterval);
+      }
+      enemies = [];
+      playerHealth = 100;
+      score = 0;
+      kills = 0;
+      scoreEle.innerText = score;
+      document.documentElement.style.setProperty('--hue', playerHealth);
+      healthLeftEle.style.width = playerHealth + "%";
+      cvs.style.filter = 'grayscale(0)';
+      playerTank.style.filter = 'grayscale(0)';
+      barier.style.filter = 'grayscale(0)';
+      page[2].style.display = "none";
+      playingTime = 0;
+}
+
+const btn = document.getElementsByClassName('btn');
+
+btn[0].addEventListener('click', () => {
+      reset();
+      cursor[0].style.display = 'none';
+      playing = true;
+      document.body.requestPointerLock();
+      page[1].style.zIndex = 10;
+      page[2].style.display = "none";
+      timeInterval = setInterval(() => {
+            playingTime += 0.001;
+      }, 1);
+});
+
+btn[1].addEventListener('click', () => {
+      reset();
+      page[2].style.display = 'none';
+      page[1].style.display = 'none';
+      page[0].style.display = 'block';
+      page[0].style.zIndex = 10;
+})
