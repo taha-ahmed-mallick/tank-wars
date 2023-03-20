@@ -37,7 +37,7 @@ class Dimensions {
 let dimensions = new Dimensions;
 window.addEventListener('resize', () => dimensions.function());
 
-let angleRad, spawnTimeΔ = 5000, playing = false, lastSpawnedTime, level = 0, lvlChangeΔ = 10000;
+let angleRad, spawnTimeΔ = 5000, playing = false, gameOver = false, lastSpawnedTime, level = 0, lvlChangeΔ = 10000;
 let playerHealth = 100, score = 0, kills = 0, playingTime = 0, timeInterval, fireAllowed = true;
 
 let mousePos = {
@@ -98,7 +98,7 @@ strtBtn.addEventListener('click', () => {
       playing = true;
       document.body.requestPointerLock();
       timeInterval = setInterval(() => {
-            playingTime += 0.001;
+            if (playing) playingTime += 0.001;
       }, 1);
 });
 
@@ -239,9 +239,7 @@ function animation() {
 window.requestAnimationFrame(animation);
 
 // enemies spawner
-console.time();
 setInterval(() => {
-      console.timeLog();
       if (playing) enemyGenerator();
 }, spawnTimeΔ);
 
@@ -266,9 +264,39 @@ function enemyGenerator() {
       enemies.push(new Enemy(Ex, Ey));
 }
 
-setInterval(() => level++, lvlChangeΔ);
+setInterval(() => playing ? level++ : null, lvlChangeΔ);
 
-document.addEventListener('pointerlockchange', () => console.log("dsfsdf"));
+const pausePage = document.querySelector('.pause>div');
+const pauseDet = pausePage.children[1].children[1].children;
+
+document.addEventListener('pointerlockchange', () => {
+      if (document.pointerLockElement == null && !gameOver) {
+            playing = false;
+            page[1].style.zIndex = 0;
+            page[3].style.display = "block";
+            page[3].style.zIndex = 10;
+            pausePage.style.opacity = 1;
+            pauseDet[0].innerHTML = score;
+            pauseDet[1].innerHTML = formatTime();
+            pauseDet[2].innerHTML = kills;
+      }
+});
+
+const pausePageBtns = document.querySelectorAll('.pause .btns>span');
+pausePageBtns[0].addEventListener('click', () => {
+      playing = true;
+      page[3].style.display = "none";
+      page[3].style.zIndex = 0;
+      pausePage.style.opacity = 0;
+      cursor[0].style.display = "none";
+      document.body.requestPointerLock();
+});
+pausePageBtns[1].addEventListener('click', () => {
+      restart();
+      page[3].style.display = "none";
+      page[3].style.zIndex = 0;
+      pausePage.style.opacity = 0;
+});
 
 const playerTank = document.getElementsByClassName('tank-body')[0];
 let rect, rectDetail;
@@ -312,6 +340,7 @@ function fireCollision() {
                                           if (score > window.localStorage.highScore) window.localStorage.highScore = score;
                                           lastEle.innerText = window.localStorage.lastScore;
                                           highEle.innerText = window.localStorage.highScore;
+                                          gameOver = true;
                                           document.exitPointerLock();
                                           cvs.style.filter = 'grayscale(1)';
                                           playerTank.style.filter = 'grayscale(1)';
@@ -340,6 +369,10 @@ function fireCollision() {
 
 function setPlayTime() {
       clearInterval(timeInterval);
+      endDet[1].innerHTML = formatTime();
+}
+
+function formatTime() {
       let time = [];
       time[0] = Math.floor(playingTime / 60);
       time[1] = Math.floor(playingTime - time[0] * 60);
@@ -347,7 +380,7 @@ function setPlayTime() {
       for (let i = 0; i < time.length; i++) {
             time[i] < 10 ? time[i] = '0' + time[i].toString() : null;
       }
-      endDet[1].innerHTML = `${time[0]}: ${time[1]}.${time[2]}`;
+      return `${time[0]}: ${time[1]}.${time[2]}`;
 }
 
 function reset() {
@@ -359,6 +392,8 @@ function reset() {
       playerHealth = 100;
       score = 0;
       kills = 0;
+      level = 0;
+      gameOver = false;
       scoreEle.innerText = score;
       document.documentElement.style.setProperty('--hue', playerHealth);
       healthLeftEle.style.width = playerHealth + "%";
@@ -371,7 +406,9 @@ function reset() {
 
 const btn = document.getElementsByClassName('btn');
 
-btn[0].addEventListener('click', () => {
+btn[0].addEventListener('click', restart);
+
+function restart() {
       reset();
       cursor[0].style.display = 'none';
       playing = true;
@@ -379,9 +416,9 @@ btn[0].addEventListener('click', () => {
       page[1].style.zIndex = 10;
       page[2].style.display = "none";
       timeInterval = setInterval(() => {
-            playingTime += 0.001;
+            if (playing) playingTime += 0.001;
       }, 1);
-});
+}
 
 btn[1].addEventListener('click', () => {
       reset();

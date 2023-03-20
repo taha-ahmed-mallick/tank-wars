@@ -251,11 +251,13 @@ div.fire-anime {
       }
 }
 
-div.end {
+div.end,
+div.pause {
       display: none;
 }
 
-div.end>div {
+div.end>div,
+div.pause>div {
       z-index: 100;
       position: absolute;
       color: #fff;
