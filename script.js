@@ -117,7 +117,7 @@ class Fire {
             this.x = x;
             this.y = y;
             this.source = source;
-            if (source == 'enemy') this.firePow = Math.round(Math.random() * 10) + 5 + level;
+            if (source == 'enemy') this.firePow = Math.round(Math.random() * 10) + 5 + Math.floor(level / 2);
             this.create();
       }
 
@@ -125,11 +125,11 @@ class Fire {
             ctx.translate(this.x, this.y);
             ctx.rotate(this.angleRadR);
             ctx.fillStyle = '#f44336';
-            ctx.fillRect(- 5, - 4, 10, 7);
+            ctx.fillRect(-5, - 4, 10, 7);
             ctx.fillStyle = '#ffc107';
-            ctx.fillRect(- 5, + 2, 10, 15);
+            ctx.fillRect(-5, 2, 10, 15);
             ctx.fillStyle = '#ffeb3b';
-            ctx.fillRect(- 5, + 16, 10, 7);
+            ctx.fillRect(-5, 16, 10, 7);
             ctx.closePath();
             ctx.rotate(Math.PI * 2 - this.angleRadR);
             ctx.translate(-this.x, -this.y);
